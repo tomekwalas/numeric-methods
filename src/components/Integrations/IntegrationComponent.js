@@ -1,8 +1,8 @@
 import React, { Component } from "react";
-import { Layout, Icon, Row, Col, Input } from "antd";
+import MyFileReader from "../../utils/fileReader";
 import Dropzone from "react-dropzone";
+import { Segment, Container, Header, Icon } from "semantic-ui-react";
 
-const { Header, Content } = Layout;
 export default class InterpolationComponent extends Component {
   constructor() {
     super();
@@ -13,10 +13,21 @@ export default class InterpolationComponent extends Component {
     this.calculate = this.calculate.bind(this);
   }
 
-  calculate(interpolation, data, x) {
-    interpolation.load(data);
+  printObject(data) {
+    const view = [];
+    for (let key in data) {
+      if (data.hasOwnProperty(key)) {
+        view.push(<p>{key + ":" + data[key]}</p>);
+      }
+    }
 
-    return interpolation.calculate(x);
+    return view;
+  }
+
+  calculate(integration) {
+    const { data } = this.state;
+    integration.load(data);
+    return integration.calculate();
   }
 
   onDragEnter() {
@@ -35,9 +46,10 @@ export default class InterpolationComponent extends Component {
     acceptedFiles.forEach(file => {
       const reader = new FileReader();
       reader.onload = () => {
+        const fileReader = new MyFileReader();
         const fileAsBinaryString = reader.result;
         this.setState({
-          data: JSON.parse(fileAsBinaryString),
+          data: fileReader.read(fileAsBinaryString),
           dropzoneActive: false
         });
       };
@@ -52,33 +64,38 @@ export default class InterpolationComponent extends Component {
     const { data, dropzoneActive } = this.state;
     const { integration, name } = this.props;
     const result =
-      data.length === 0 ? undefined : this.calculate(integration, data);
+      !data || data.length === 0 ? undefined : this.calculate(integration);
     return (
-      <div>
-        <h1>{name}</h1>
+      <Container fluid>
+        <Header as="h1">{name}</Header>
         {!dropzoneActive && !data && <span>Upuść plik by wczytać dane</span>}
         <Dropzone
           disableClick
-          style={{ border: "none", height: "75vh", textAlign: "center" }}
+          style={{
+            border: "none",
+            height: "70vh",
+            textAlign: dropzoneActive ? "center" : "left"
+          }}
           onDrop={this.onDrop.bind(this)}
           onDragEnter={this.onDragEnter.bind(this)}
           onDragLeave={this.onDragLeave.bind(this)}>
           {dropzoneActive && (
-            <Icon type="cloud-download" style={{ fontSize: 100 }} />
+            <Icon name="cloud upload" size="big" color="teal" />
           )}
           {data && (
-            <div>
-              <h1>Dane wejściowe:</h1>
-            </div>
+            <Segment.Group>
+              <Segment tertiary>Dane</Segment>
+              <Segment>{this.printObject(data)}</Segment>
+            </Segment.Group>
           )}
-          {data &&
-            Object.getOwnPropertyNames(data).forEach(key => {
-              <p>
-                {key}: {data[key]}
-              </p>;
-            })}
+          {data && (
+            <Segment.Group>
+              <Segment tertiary>Wynik</Segment>
+              <Segment>{result}</Segment>
+            </Segment.Group>
+          )}
         </Dropzone>
-      </div>
+      </Container>
     );
   }
 }

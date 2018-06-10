@@ -1,17 +1,13 @@
 import React from "react";
 import Interpolation from "./InterpolationComponent";
+import NewtonInterpolation from "../../logic/interpolations/newtonInterpolation";
 
-const NewtonInterpolation = props => (
+const NewtonInterpolationComponent = props => (
   <Interpolation
     {...props}
     name="Interpolacja Newtona"
-    interpolation={{
-      load: data => {},
-      calculate: x => {
-        return x;
-      }
-    }}
+    interpolation={new NewtonInterpolation()}
   />
 );
 
-export default NewtonInterpolation;
+export default NewtonInterpolationComponent;

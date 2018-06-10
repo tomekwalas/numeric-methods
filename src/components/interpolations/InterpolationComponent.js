@@ -1,7 +1,14 @@
 import React, { Component } from "react";
-import { Icon, Row, Col, Input } from "antd";
 import Dropzone from "react-dropzone";
-export default class InterpolationComponent extends Component {
+import {
+  Container,
+  Header,
+  Segment,
+  Grid,
+  Input,
+  Icon
+} from "semantic-ui-react";
+class InterpolationComponent extends Component {
   constructor() {
     super();
     this.state = {
@@ -53,66 +60,62 @@ export default class InterpolationComponent extends Component {
     const result =
       data.length === 0 ? undefined : this.calculate(interpolation, data, x);
     return (
-      <div>
-        <h1>{name}</h1>
+      <Container fluid>
+        <Header as="h1">{name}</Header>
         {!dropzoneActive &&
           data.length === 0 && <span>Upuść plik by wczytać dane</span>}
         <Dropzone
           disableClick
-          style={{ border: "none", height: "75vh", textAlign: "center" }}
+          style={{
+            border: "none",
+            height: "70vh",
+            textAlign: dropzoneActive ? "center" : "left"
+          }}
           onDrop={this.onDrop.bind(this)}
           onDragEnter={this.onDragEnter.bind(this)}
           onDragLeave={this.onDragLeave.bind(this)}>
           {dropzoneActive && (
-            <Icon type="cloud-download" style={{ fontSize: 100 }} />
+            <Icon name="cloud upload" size="big" color="teal" />
           )}
-          {data.length > 0 && <h1>Dane wejściowe:</h1>}
-          <Row type="flex">
-            {data.map((point, key) => {
-              const spanNum = 24 / data.length;
-
-              return (
-                <Col
-                  key={key}
-                  span={spanNum.toString()}
-                  style={{
-                    backgroundColor: key % 2 === 0 ? "#efefef" : "grey"
-                  }}>
-                  {point.x}
-                </Col>
-              );
-            })}
-          </Row>
-          <Row type="flex">
-            {data.map((point, key) => {
-              const spanNum = 24 / data.length;
-
-              return (
-                <Col
-                  key={key}
-                  span={spanNum.toString()}
-                  style={{
-                    backgroundColor: key % 2 === 0 ? "#efefef" : "grey"
-                  }}>
-                  {point.y}
-                </Col>
-              );
-            })}
-          </Row>
           {data.length > 0 && (
-            <div style={{ marginTop: 10 }}>
-              <Input
-                addonBefore="Szukane X"
-                style={{ width: 200 }}
-                value={x}
-                onChange={e => this.setState({ x: e.target.value })}
-              />
-              <h1>Wynik:</h1>
-              <h3>X = {result}</h3>
-            </div>
+            <Segment.Group>
+              <Segment tertiary>Wynik</Segment>
+              <Segment>
+                <Grid>
+                  <Grid.Column width="2">
+                    <Grid celled columns={2} textAlign="center">
+                      <Grid.Row>
+                        <Grid.Column>Dane</Grid.Column>
+                      </Grid.Row>
+                      <Grid.Row>
+                        <Grid.Column>x</Grid.Column>
+                        <Grid.Column>y</Grid.Column>
+                      </Grid.Row>
+                      {data.map(point => (
+                        <Grid.Row>
+                          <Grid.Column>{point.x}</Grid.Column>
+                          <Grid.Column>{point.y}</Grid.Column>
+                        </Grid.Row>
+                      ))}
+                    </Grid>
+                  </Grid.Column>
+                  <Grid.Column width="14">
+                    <Segment basic>
+                      <Input
+                        value={this.state.x}
+                        placeholder="Szukany x"
+                        onChange={e => this.setState({ x: e.target.value })}
+                      />
+                      <Header>x = {result}</Header>
+                    </Segment>
+                  </Grid.Column>
+                </Grid>
+              </Segment>
+            </Segment.Group>
           )}
         </Dropzone>
-      </div>
+      </Container>
     );
   }
 }
+export default InterpolationComponent;
